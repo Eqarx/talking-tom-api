@@ -1,0 +1,13 @@
+{
+  "name": "talking-tom-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Relay API console with model catalog and negative-price TTC-5.2 Tomcat channel",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test",
+    "check": "node --check app.js && node --check catalog.js && node --check engine.js && node --check store.js && node --check sdk.js && node --check sw.js && node --check server.mjs"
+  },
+  "engines": { "node": ">=22" }
+}

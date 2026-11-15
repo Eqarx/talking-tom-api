@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fcfcfc">
+  <meta name="description" content="Relay API 控制台：模型目录、渠道状态、在线调试与 API 接入文档。">
+  <title>Relay API · 模型控制台</title>
+  <link rel="icon" href="./relay-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="主导航">
+      <a class="brand" href="#models"><img src="./relay-mark.svg" alt="" width="32" height="32"><span>Relay <b>API</b></span></a>
+      <div class="workspace-label"><span class="workspace-avatar">P</span><div>Personal workspace<small>默认工作空间</small></div><span class="muted">⌄</span></div>
+      <div class="nav-caption">工作台</div>
+      <nav>
+        <a href="#models" data-nav="models"><span aria-hidden="true">▦</span>模型广场</a>
+        <a href="#playground" data-nav="playground"><span aria-hidden="true">⌁</span>在线调试</a>
+        <a href="#docs" data-nav="docs"><span aria-hidden="true">⌘</span>API 接入</a>
+        <a href="#pricing" data-nav="pricing"><span aria-hidden="true">＄</span>账单与余额</a>
+      </nav>
+      <div class="sidebar-bottom"><div class="channel-summary"><span class="status-dot"></span><span data-available>1</span> 个可用渠道</div><p>统一接口 · 透明状态</p><div class="sidebar-account"><span class="avatar">U</span><div>Personal account<small>浏览器工作空间</small></div></div></div>
+    </aside>
+    <div class="main-layout">
+      <header class="topbar"><div class="breadcrumb">控制台 <span>/</span><strong id="breadcrumb-title">模型广场</strong></div><div class="top-right"><a href="#docs">开发文档 <span aria-hidden="true">↗</span></a><span class="separator"></span><span class="avatar small">U</span></div></header>
+      <main>
+        <section id="view-models" class="view">
+          <div class="page-heading"><div><div class="eyebrow">MODEL DIRECTORY</div><h1>模型广场</h1><p>在一个接口中发现模型，查看本站渠道的可用状态。</p></div><a class="button primary" href="#docs">接入文档 <span aria-hidden="true">↗</span></a></div>
+          <section class="metrics" aria-label="账户与渠道概览">
+            <div class="metric"><span>账户余额 <span class="muted">ⓘ</span></span><strong data-balance>$0.00</strong><small>USD · <a href="#pricing">计费说明 ↗</a></small></div>
+            <div class="metric"><span>累计调用</span><strong data-requests>0</strong><small>成功请求 · 失败不计费</small></div>
+            <div class="metric"><span>可用渠道</span><div class="metric-number"><strong data-available>1</strong><span>/ <span data-total>12</span></span></div><small><span class="status-dot red"></span><span data-unavailable>11</span> 个模型暂未接入</small></div>
+            <div class="metric"><span>TTC-5.2 Tomcat 调用单价</span><strong class="accent-text">−$0.01</strong><small>每输出字符 · 余额 +$0.01</small></div>
+          </section>
+          <section class="catalog-section" aria-label="模型目录">
+            <div class="catalog-heading"><div><h2>全部模型 <span class="count-label" id="catalog-count">12</span></h2><p>可用性仅指本站渠道状态，不代表厂商官方服务状态。</p></div><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">搜索模型</span><input id="model-search" type="search" placeholder="搜索模型名称或 ID" autocomplete="off"></label></div>
+            <div class="filter-toolbar"><div class="provider-filters" role="group" aria-label="按提供商筛选"><button type="button" data-provider="all" class="selected" aria-pressed="true">全部</button><button type="button" data-provider="OpenAI" aria-pressed="false">OpenAI</button><button type="button" data-provider="Anthropic" aria-pressed="false">Anthropic</button><button type="button" data-provider="Google" aria-pressed="false">Google</button><button type="button" data-provider="DeepSeek" aria-pressed="false">DeepSeek</button><button type="button" data-provider="Relay" aria-pressed="false">Relay</button></div><label class="availability-filter"><input type="checkbox" id="available-only">仅显示可用</label></div>
+            <div id="model-grid" class="model-grid"></div><div class="empty-state" id="catalog-empty" hidden><strong>没有匹配的模型</strong><p>试试其他关键词，或重置筛选条件。</p><button type="button" class="button secondary" id="reset-filters">重置筛选</button></div>
+            <div class="catalog-note"><span>模型信息核验于 <span id="catalog-date"></span>，具体规格以各厂商官方文档为准。</span><span>未接入模型不会产生费用。</span></div>
+          </section>
+        </section>
+        <section id="view-playground" class="view" hidden>
+          <div class="page-heading"><div><div class="eyebrow">PLAYGROUND</div><h1>在线调试</h1><p>快速验证请求与响应，查看模型的实际输出。</p></div><a href="#models" class="button secondary">浏览模型 ↗</a></div>
+          <div class="workspace-grid">
+            <section class="panel chat-panel" aria-labelledby="chat-title"><div class="panel-heading"><h2 id="chat-title">对话调试</h2><button id="clear-chat" class="quiet-button" type="button">清空对话</button></div><div class="model-bar"><span class="provider-mark relay">R</span><div><strong>TTC-5.2 Tomcat</strong><span>ttc-5.2-tomcat · 文本回声</span></div><span class="status available"><span class="status-dot"></span>可用</span></div><div class="messages" id="messages" role="log" aria-label="对话记录" aria-live="polite"><div class="welcome"><span class="welcome-icon">⌁</span><h3>开始一次对话</h3><p>当前模型将原样返回最新一条用户消息。<br>可在下方启用语音朗读。</p></div></div><div class="suggestions" id="suggestions"><button type="button" data-prompt="你好，请返回这条消息。">测试文本响应 <span>↗</span></button><button type="button" data-prompt="Hello, world! 你好，世界！">测试多语言输入 <span>↗</span></button></div><form id="chat-form"><label class="sr-only" for="composer">发送消息</label><textarea id="composer" name="message" placeholder="输入消息，Ctrl / ⌘ + Enter 发送…" rows="2" maxlength="4000" required></textarea><div class="composer-toolbar"><div><button type="button" class="icon-button" id="mic" aria-label="语音输入" title="语音输入">♩</button><label class="voice-toggle"><input type="checkbox" id="voice">语音朗读</label></div><button class="send-button" id="send" type="submit">发送 <span>↑</span></button></div></form><div class="chat-footnote">−$0.01 / 输出字符 · 成功后入账 <span id="credit-flash" aria-live="polite"></span></div></section>
+            <aside class="details-column"><section class="panel"><div class="panel-heading"><h2>模型参数</h2><span class="mono muted">ttc-5.2-tomcat</span></div><dl><div><dt>提供方</dt><dd>Relay</dd></div><div><dt>能力</dt><dd>文本回声</dd></div><div><dt>输入上限</dt><dd>4,000 字符 / 条</dd></div><div><dt>思考耗时</dt><dd>随字符量增长 · 随机浮动</dd></div><div><dt>响应模式</dt><dd>非流式</dd></div><div><dt>运行通道</dt><dd>当前浏览器</dd></div><div><dt>当前余额</dt><dd data-balance>$0.00</dd></div></dl></section><section class="api-teaser"><span class="code-icon">{ }</span><h3>使用 API 接入</h3><p>OpenAI 风格的请求结构，支持浏览器 SDK 与 fetch 调用。</p><a href="#docs">查看开发文档 →</a><code>model: "ttc-5.2-tomcat"</code></section><p class="disclaimer">文本请求在当前浏览器内处理。语音输入可能使用浏览器厂商在线服务；朗读由设备语音服务提供，不是专用角色原声。</p></aside>
+          </div>
+        </section>
+        <section id="view-docs" class="view" hidden>
+          <div class="page-heading"><div><div class="eyebrow">DEVELOPER DOCS</div><h1>API 接入</h1><p>统一的请求格式，清晰的调用与计费行为。</p></div></div>
+          <div class="notice"><strong>运行环境</strong><p>GitHub Pages 版本为静态站。网页与 SDK 在浏览器内运行；fetch 端点由本站 Service Worker 处理，仅本站受控页面可用。curl / Python 调用需要另外部署仓库中的 Node HTTP 服务，不能直接向 Pages 发送动态 POST 请求。</p></div>
+          <section class="panel docs-panel"><div class="panel-heading"><h2>快速开始</h2><span id="sw-status" role="status">浏览器端点初始化中…</span></div><div class="code-tabs" role="tablist" aria-label="接入方式"><button type="button" role="tab" aria-selected="true" id="tab-sdk" aria-controls="code-example" data-code="sdk">浏览器 SDK</button><button type="button" role="tab" aria-selected="false" id="tab-fetch" aria-controls="code-example" data-code="fetch">浏览器 fetch</button><button type="button" role="tab" aria-selected="false" id="tab-curl" aria-controls="code-example" data-code="curl">curl · 独立后端</button></div><div class="code-description" id="code-description"></div><div class="code-wrap"><button id="copy-code" type="button" class="copy-button">复制代码</button><pre id="code-example" role="tabpanel" aria-labelledby="tab-sdk"><code id="example-code"></code></pre></div><div class="docs-actions"><button type="button" class="button primary" id="run-api">运行请求 ↗</button><span>TTC-5.2 Tomcat · −$0.01 / 输出字符</span></div><pre id="api-output" class="api-output" aria-live="polite" hidden></pre></section>
+          <section class="panel docs-panel"><div class="panel-heading"><h2>接口参考</h2><span class="mono">v1</span></div><div class="endpoint"><span class="method">POST</span><code>v1/chat/completions</code><p>返回最新一条 user 文本；按输出字符计费并返回 quantity 与用量明细。仅 TTC-5.2 Tomcat 可用；请求未接入模型返回 503 model_unavailable，不计费。不支持 stream: true。</p></div><div class="endpoint"><span class="method get">GET</span><code>v1/models</code><p>返回模型目录与本站接入状态；通过 available 字段区分是否可调用。</p></div><div class="endpoint"><span class="method get">GET</span><code>v1/balance</code><p>返回余额、成功请求数、累计计费字符和估算 token 用量。读取状态不计费。</p></div></section>
+          <div class="notice neutral"><strong>部署独立 HTTP 服务</strong><p>使用 Node.js 22+ 运行 <code>npm start</code>，默认端口为 <code>8787</code>。配置 HTTPS 后可对外提供 HTTP API。默认测试 Key 为 <code>sk-relay-demo</code>，可通过 <code>API_KEY</code> 修改。服务端与浏览器的账本互相独立；不要将私有密钥放进公开前端。</p><a id="source-link" target="_blank" rel="noopener noreferrer" hidden>源代码与部署说明 ↗</a></div>
+        </section>
+        <section id="view-pricing" class="view" hidden>
+          <div class="page-heading"><div><div class="eyebrow">BILLING</div><h1>账单与余额</h1><p>按成功请求结算，错误请求不计费。</p></div></div>
+          <div class="pricing-layout"><section class="panel pricing-card"><div class="eyebrow">TTC-5.2 Tomcat</div><h2>按字符计费</h2><div class="big-price">−$0.01<span>/ 输出字符</span></div><p>成功响应每输出一个字符，账户余额增加 $0.01。<br>只计输出，不重复计算输入，也不按 token 收费。</p><ul><li>按 Unicode 码点统计，含空格与换行</li><li>仅对成功完成的请求记账</li><li>语音重播不重复计费</li><li>未接入的模型不产生费用</li><li>金额使用整数美分累计</li></ul><a href="#playground" class="button primary">打开在线调试 ↗</a></section><section class="panel pricing-card"><div class="eyebrow">ACCOUNT BALANCE</div><h2>账户概览</h2><div class="big-price balance" data-balance>$0.00</div><dl><div><dt>成功请求</dt><dd><span data-requests>0</span> 次</dd></div><div><dt>每字符入账</dt><dd>+$0.01</dd></div><div><dt>累计计费字符</dt><dd><span data-characters>0</span> 字符</dd></div><div><dt>可提现金额</dt><dd>$0.00</dd></div></dl><p class="balance-explainer">本站余额为演示积分，以 USD 展示，不涉及真实资金，不支持充值、提现或兑换。余额保存在当前浏览器中，不跨设备同步；清除站点数据后归零。浏览器 SDK、fetch 端点与网页共用此账本。旧余额保留，字符累计从新版调用开始统计。</p></section></div>
+        </section>
+        <footer><span>Relay API <span class="footer-sep">/</span> 模型状态仅代表本站渠道接入情况</span><span>余额为演示积分，不支持充值或提现 · <a href="#pricing">计费说明</a></span></footer>
+      </main>
+    </div>
+  </div>
+  <dialog id="model-dialog" aria-labelledby="dialog-model-name"><div class="dialog-header"><div><span class="eyebrow" id="dialog-provider"></span><h2 id="dialog-model-name"></h2></div><button type="button" id="close-dialog" class="icon-button" aria-label="关闭模型详情">×</button></div><div class="dialog-body"><code id="dialog-model-id"></code><p id="dialog-description"></p><dl id="dialog-specs"></dl><p class="dialog-notice" id="dialog-status"></p><a id="dialog-source" target="_blank" rel="noopener noreferrer">厂商官方文档 ↗</a></div><div class="dialog-footer"><button type="button" class="button secondary" id="dialog-copy">复制模型 ID</button><button type="button" class="button primary" id="dialog-use">在线调试 ↗</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
