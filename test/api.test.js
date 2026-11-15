@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { get } from 'node:http';
 import { mkdtemp, rm, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -161,6 +162,32 @@ test('HTTP server: auth, concurrent accounting, persistence, CORS, limits and st
   assert.equal((await fetch(`${base}/relay-mark.svg`)).status, 200);
   assert.match((await fetch(`${base}/sw.js`)).headers.get('Content-Type'), /javascript/);
   for (const path of ['.data/account.json', 'server.mjs', '.git/config', '%2e%2e/.gitconfig']) assert.equal((await fetch(`${base}/${path}`)).status, 404);
+});
+
+test('malformed unauthenticated HTTP request targets return 400 without stopping the server', async t => {
+  const store = memoryStore();
+  const server = createTomServer({ store });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const port = server.address().port;
+  for (const path of ['//[', '//[::1', 'http://[']) {
+    const response = await new Promise((resolve, reject) => {
+      get({ hostname: '127.0.0.1', port, path }, res => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', chunk => { body += chunk; });
+        res.on('error', reject);
+        res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body }));
+      }).on('error', reject);
+    });
+    assert.equal(response.status, 400);
+    assert.match(response.headers['content-type'], /application\/json/);
+    assert.equal(response.headers['cache-control'], 'no-store');
+    assert.equal(JSON.parse(response.body).error.type, 'invalid_request_error');
+    assert.equal((await fetch(`http://127.0.0.1:${port}/`)).status, 200);
+    assert.equal((await fetch(`http://127.0.0.1:${port}/v1/balance`, { headers: { Authorization: 'Bearer sk-relay-demo' } })).status, 200);
+  }
+  assert.deepEqual(await store.read(), initialAccount());
 });
 
 test('valid requests independently sample a bounded random wait and return only the final answer', async () => {

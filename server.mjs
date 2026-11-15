@@ -42,7 +42,13 @@ export function createTomServer({ store, apiKey = 'sk-relay-demo', allowedOrigin
   return createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    const url = new URL(req.url, 'http://localhost');
+    let url;
+    try { url = new URL(req.url, 'http://localhost'); }
+    catch {
+      res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify({ error: { message: '请求地址无效。', type: 'invalid_request_error' } }));
+      return;
+    }
     if (url.pathname.startsWith('/v1/')) {
       res.setHeader('Cache-Control', 'no-store');
       if (allowedOrigin && req.headers.origin === allowedOrigin) {
